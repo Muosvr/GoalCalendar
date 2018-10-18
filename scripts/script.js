@@ -20,7 +20,7 @@ function run(){
   // })
 
   document.addEventListener('dragstart', function(event) {
-  		dragging = event.target.parentNode;
+  		dragging = event.target;
       event.dataTransfer.setData('text/html', dragging);
   });
 
