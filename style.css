@@ -5,7 +5,7 @@
 ul {
   margin:0;
   padding:0;
-  width:50%;
+  width:80%;
 }
 li {
   /* cursor:move; */
@@ -21,4 +21,52 @@ li {
   background-color: grey;
   border-radius: 4px;
   cursor: move
+}
+input{
+  margin-right:10px;
+}
+.datepicker{
+  width: 100px
+}
+.duration{
+  width:90px
+}
+.task_atribute{
+  display:inline-block;
+}
+#title_task{
+  display:inline-block;
+  margin-left: 70px;
+  margin-right: 70px;
+}
+#title_date{
+  display:inline-block;
+  margin-right: 20px;
+}
+#title_duration{
+  display:inline-block;
+  margin-right: 20px;
+}
+td{
+  text-align:center;
+}
+#schedule_block{
+  width: 100%;
+  text-aling:center;
+}
+.schedule{
+  width: 50px;
+  margin-left:auto;
+  margin-right:auto;
+  text-align:center;
+}
+table{
+  width:80%;
+  margin-left:auto;
+  margin-right:auto;
+  margin-bottom:20px;
+}
+#table_title{
+  text-align:center;
+  margin-bottom:10px;
 }

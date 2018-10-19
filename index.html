@@ -9,25 +9,52 @@
   </head>
 
   <body onload="run()">
+    <div id="schedule_block">
+      <div id="table_title">Availability during the week (in hours)</div>
+      <table>
+        <tr>
+          <th>Mon</th>
+          <th>Tue</th>
+          <th>Wed</th>
+          <th>Thur</th>
+          <th>Fri</th>
+          <th>Sat</th>
+          <th>Sun</th>
+        </tr>
+        <tr>
+          <td>
+            <input class="schedule" id="Mon" type="number" placeholder="0"></input>
+          </td>
+          <td>
+            <input class="schedule" id="Tue" type="number" placeholder="0"></input>
+          </td>
+          <td>
+            <input class="schedule" id="Wed" type="number" placeholder="0"></input>
+          </td>
+          <td>
+            <input class="schedule" id="Thur" type="number" placeholder="0"></input>
+          </td>
+          <td>
+            <input class="schedule" id="Fri" type="number" placeholder="0"></input>
+          </td>
+          <td>
+            <input class="schedule" id="Sat" type="number" placeholder="0"></input>
+          </td>
+          <td>
+            <input class="schedule" id="Sun" type="number" placeholder="0"></input>
+          </td>
+        </tr>
+      </table>
+    </div>
 
 
     <ul>
+        <button id="addButton">Add</button>
         <li draggable="true" class="sortable-bulk">
-          <div class="dragHandle"></div>
-          List Item 1
+          <div class='task_atribute' id="title_task">Tasks</div>
+          <div class='task_atribute' id="title_date" >  Date picker</div>
+          <div class='task_atribute'id="title_duration"> Minimum time needed</div>
         </li>
-        <li draggable="true" class="sortable-bulk">
-          <input>This is a test</input>
-          List Item 2
-        </li>
-        <li draggable="true" class="sortable-bulk">List Item 3</li>
-        <li draggable="true" class="sortable-bulk">List Item 4</li>
-        <li draggable="true" class="sortable-bulk">List Item 5</li>
-        <li draggable="true" class="sortable-bulk">List Item 6</li>
-        <li draggable="true" class="sortable-bulk">List Item 7</li>
-        <li draggable="true" class="sortable-bulk">List Item 8</li>
-        <li draggable="true" class="sortable-bulk">List Item 9</li>
-        <li draggable="true" class="sortable-bulk">List Item 10</li>
     </ul>
 
   </body>
