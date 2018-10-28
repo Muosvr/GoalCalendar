@@ -26,7 +26,7 @@ input{
   margin-right:10px;
 }
 .datepicker{
-  width: 100px
+  width: 125px
 }
 .duration{
   width:90px
@@ -69,4 +69,7 @@ table{
 #table_title{
   text-align:center;
   margin-bottom:10px;
+}
+button{
+  margin-right:10px;
 }

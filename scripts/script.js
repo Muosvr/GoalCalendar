@@ -76,32 +76,106 @@ function run(){
 }
 
 
-function schedule_task(){
-  var list = $(".listItem");
-  var length = list.length;
+function get_availability(){
   var availability = {
-    "Mon": 0,
-    "Tue": 0,
-    "Wed": 0,
-    "Thur": 0,
-    "Fri": 0,
-    "Sat": 0,
-    "Sun": 0
+    0: 0,
+    1: 0,
+    2: 0,
+    3: 0,
+    4: 0,
+    5: 0,
+    6: 0
   }
 
   for(i=0; i<7; i++){
-    var id = $("td")[i].getElementsByTagName("Input")[0].id;
+    // var id = $("td")[i].getElementsByTagName("Input")[0].id;
     var value = $("td")[i].getElementsByTagName("Input")[0].value;
     if (value != ""){
-      availability[id] = parseInt(value);
+      availability[i] = parseInt(value);
     }
 
   }
+return availability
+}
 
-  console.log(availability)
+class Task {
+  constructor(){
+    this.description = "";
+    this.duration = 0;
+    this.scheduled_duration = 0;
+    this.deadline = "";
+    this.scheduled_dates = [];
+  }
+}
 
-  for(i=0; i<length; i++){
+function get_tasks(){
+  var jList = $(".listItem");
+  var length = jList.length;
+  var tasks = [];
+
+  for (i = 0; i<length; i++){
+    var task = new Task;
+    task.description = jList[i].getElementsByClassName("task")[0].value;
+    task.duration = jList[i].getElementsByClassName("duration")[0].value;
+    task.deadline = jList[i].getElementsByClassName("datepicker")[0].value;
+    tasks.push(task);
+  }
+  return tasks;
+}
+
+function schedule_tasks(){
+  var availability = get_availability()
+  var days = 7
+  var tasks = get_tasks()
+  var task_count = tasks.length
+  var week = {
+    0: "Mon",
+    1: "Tue",
+    2: "Wed",
+    3: "Thur",
+    4: "Fri",
+    5: "Sat",
+    6: "Sun"
+  }
+
+  var task_index = 0;
+  for(i=0; i< days; i++){
+    var hours = parseFloat(availability[i]);
+    var remaining_hours = hours;
+    var min_duration = 1;
+      for(j=task_index; j<task_count; j++){
+        var duration = parseFloat(tasks[j].duration - tasks[j].scheduled_duration);
+        if (remaining_hours >= duration && duration > 0){
+          remaining_hours -= duration;
+          tasks[j].scheduled_dates.push(week[i]);
+          tasks[j].scheduled_duration += duration;
+          console.log(week[i], "Task: "+tasks[j].description, "remaining_duration: "+duration, "remaining hours: "+remaining_hours, "scheduled_duration: "+tasks[j].scheduled_duration)
+        }else{
+          if (remaining_hours >= 1 && duration > 0){
+            tasks[j].scheduled_dates.push(week[i]);
+            tasks[j].scheduled_duration += remaining_hours;
+            remaining_hours = 0;
+            console.log(week[i], "Task: "+tasks[j].description, "remaining_duration: "+duration, "remaining hours: "+remaining_hours, "scheduled_duration: "+tasks[j].scheduled_duration)
+          }
+          task_index = j;
+          break;
+        }
+      }
+  }
+  return tasks;
+}
+
+function display_tasks(){
+  $(".scheduled_dates").remove();
+  var tasks = schedule_tasks();
+  var jList = $(".listItem")
+  var list_count = jList.length;
+
+  for(i=0; i<list_count; i++){
+    dates = tasks[i].scheduled_dates
+    for (j=0; j<dates.length; j++){
+      $(jList[i]).append("<div class='scheduled_dates' style='display:inline-block; margin-left:10px'>" + dates[j] + "</div>")
+    }
 
   }
-  console.log(list.length)
 }
