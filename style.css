@@ -1,9 +1,22 @@
 #header{
   text-align: center;
   margin-bottom:30px;
+  /* color:red; */
 }
 .sortable{
   color: green;
+}
+.auth_buttons{
+  text-align:center;
+  margin-left:auto;
+  margin-right:auto
+}
+
+button{
+  margin-right:10px;
+}
+
+#signout-button{
 }
 
 ul {
@@ -79,7 +92,4 @@ table{
 #table_title{
   text-align:center;
   margin-bottom:10px;
-}
-button{
-  margin-right:10px;
 }

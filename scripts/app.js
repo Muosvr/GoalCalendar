@@ -7,15 +7,56 @@ list_template="<li draggable='true' class='sortable-bulk listItem'>"
               + "<input placeholder='hours' class='duration task_attribute' type='number' step='0.25'></input>"
               + "<button class='deleteBtn task_attribute' action=delete()>Delete</button>"
               + "</li>";
+//run the app
+function run(){
+  console.log("running");
+  display_days();
+  show_localStorage();
+  display_tasks();
+  make_list_sortable();
+  auto_update_and_save();
+}
+
+function get_days(){
+  var day_count = 7;
+  var datetime = []
+  for(i=0; i<day_count; i++){
+    date = new Date();
+    date.setDate(date.getDate() + i);
+    datetime.push(date);
+  }
+  return datetime;
+}
+
+function display_days(){
+  var days = ["Sun", "Mon", "Tue", "Wed", "Thur", "Fri", "Sat"]
+  var datetimes = get_days();
+  var length = datetimes.length;
+  for (i=0; i<length; i++){
+    var day_of_week = days[datetimes[i].getDay()];
+    var day_of_month = datetimes[i].getDate();
+    $("#schedule_head").append(
+      "<th>"
+      +day_of_week
+      +" "
+      +day_of_month
+      +"</th>")
+  }
+}
+
 
 function display_localStorage_availability(){
   if(localStorage.availability != undefined){
-    var hours = localStorage.availability.split(",");
+    var availability = JSON.parse(localStorage.availability);
+    schedule_th = $(".schedule th");
+    schedule_input = $(".schedule input");
+    for (i=0; i<schedule_th.length; i++){
+      key = schedule_th[i].innerHTML;
+      value = availability[key]
+      $(schedule_input[i]).val(value);
+    }
   }
-  weekdays = $(".schedule");
-  for (i=0; i<weekdays.length; i++){
-    $(weekdays[i]).val(parseFloat(hours[i]));
-  }
+
 }
 
 function display_localStorage_tasks(){
@@ -26,14 +67,14 @@ function display_localStorage_tasks(){
   for(i=0; i<list.length; i++){
     var task_attribute = list[i].split(",");
     var attribute_count = task_attribute.length;
-    console.log("Task attribute: "+ task_attribute);
+    // console.log("Task attribute: "+ task_attribute);
     $("ul").append(list_template);
     $("ul li:last .task").val(task_attribute[0]);
     $("ul li:last .deadline").val(task_attribute[1]);
     $("ul li:last .duration").val(parseFloat(task_attribute[2]));
     $("ul li:last .deleteBtn").click(function(){
       list = $(this)[0].parentNode;
-      console.log(list);
+      // console.log(list);
       list.remove();
     });
   }
@@ -45,47 +86,46 @@ function show_localStorage(){
   display_localStorage_tasks();
 }
 
-function run(){
-  console.log("running");
-  show_localStorage();
-  display_tasks();
-  // $('.sortable').css({border: "3px solid red"});
-  // $('.sortable').sortable();
-
-  //add grag sorting. Source: https://stackoverflow.com/questions/44415228/list-sorting-with-html5-dragndrop-drop-above-or-below-depending-on-mouse
-  var dragging = null;
-
-  // console.log(document.getElementsByClassName("dragHandle"))
-
-  // var dragHandle = document.getElementsByClassName("dragHandle")
-  // dragHandle.addEventListener('click', function(e){
-  //   console.log(e.target);
-  // })
-
-
-  $("#addButton").click(function(){
-    $("ul").append(list_template);
-    $("ul li:last .deleteBtn").click(function(){
-      list = $(this)[0].parentNode;
-      console.log(list);
-      list.remove();
-    })
+//activate button functions and saves
+function auto_update_and_save(){
+  $("input").keyup(function(){
+    display_tasks();
+    save();
+  });
+  $("button").click(function(){
+    display_tasks();
+    save();
   })
+  $("input").click(function(){
+    display_tasks();
+    save();
+  })
+}
 
+function add_task(){
+  $("ul").append(list_template);
+  $("ul li:last .deleteBtn").click(function(){
+    list = $(this)[0].parentNode;
+    // console.log(list);
+    list.remove();
+  });
+}
 
-
+//add drag sorting. Source: https://stackoverflow.com/questions/44415228/list-sorting-with-html5-dragndrop-drop-above-or-below-depending-on-mouse
+function make_list_sortable(){
+  var dragging = null;
   document.addEventListener('dragstart', function(event) {
-  		dragging = event.target;
+      dragging = event.target;
       event.dataTransfer.setData('text/html', dragging);
   });
 
   document.addEventListener('dragover', function(event) {
       event.preventDefault();
       //window.requestAnimationFrame(function(){
-      	var bounding = event.target.getBoundingClientRect()
+        var bounding = event.target.getBoundingClientRect()
         var offset = bounding.y + (bounding.height/2);
         if ( event.clientY - offset > 0 ) {
-        	event.target.style['border-bottom'] = 'solid 6px grey';
+          event.target.style['border-bottom'] = 'solid 6px grey';
           event.target.style['border-top'] = '';
         } else {
           event.target.style['border-top'] = 'solid 6px grey';
@@ -111,41 +151,19 @@ function run(){
       display_tasks();
       save();
   });
-
-  $("input").keyup(function(){
-    display_tasks();
-    save();
-  });
-  $("button").click(function(){
-    display_tasks();
-    save();
-  })
-  $("input").click(function(){
-    display_tasks();
-    save();
-  })
-
 }
 
 
 function get_availability(){
-  var availability = {
-    0: 0,
-    1: 0,
-    2: 0,
-    3: 0,
-    4: 0,
-    5: 0,
-    6: 0
-  }
+  var availability = {}
 
   for(i=0; i<7; i++){
-    // var id = $("td")[i].getElementsByTagName("Input")[0].id;
-    var value = $("td")[i].getElementsByTagName("Input")[0].value;
-    if (value != ""){
-      availability[i] = parseFloat(value);
+    var key = $(".schedule th")[i].innerHTML;
+    var value = $(".schedule input")[i].value;
+    if (value == ""){
+      value = 0;
     }
-
+    availability[key] = parseFloat(value);
   }
 return availability
 }
@@ -181,18 +199,19 @@ function schedule_tasks(){
   var tasks = get_tasks()
   var task_count = tasks.length
   var week = {
-    0: "Mon",
-    1: "Tue",
-    2: "Wed",
-    3: "Thur",
-    4: "Fri",
-    5: "Sat",
-    6: "Sun"
+    0: "Sun",
+    1: "Mon",
+    2: "Tue",
+    3: "Wed",
+    4: "Thur",
+    5: "Fri",
+    6: "Sat"
   }
+  var future_datetimes = get_days();
 
   var task_index = 0;
   for(i=0; i< days; i++){
-    var hours = parseFloat(availability[i]);
+    var hours = parseFloat(availability[week[future_datetimes[i].getDay()]+" "+future_datetimes[i].getDate()]);
     var remaining_hours = hours;
     var min_duration = 1;
       for(j=task_index; j<task_count; j++){
@@ -201,13 +220,13 @@ function schedule_tasks(){
           remaining_hours -= duration;
           tasks[j].scheduled_dates.push(week[i]);
           tasks[j].scheduled_duration += duration;
-          console.log(week[i], "Task: "+tasks[j].description, "remaining_duration: "+duration, "remaining hours: "+remaining_hours, "scheduled_duration: "+tasks[j].scheduled_duration)
+          // console.log(week[i], "Task: "+tasks[j].description, "remaining_duration: "+duration, "remaining hours: "+remaining_hours, "scheduled_duration: "+tasks[j].scheduled_duration)
         }else{
           if (remaining_hours >= 1 && duration > 0){
             tasks[j].scheduled_dates.push(week[i]);
             tasks[j].scheduled_duration += remaining_hours;
             remaining_hours = 0;
-            console.log(week[i], "Task: "+tasks[j].description, "remaining_duration: "+duration, "remaining hours: "+remaining_hours, "scheduled_duration: "+tasks[j].scheduled_duration)
+            // console.log(week[i], "Task: "+tasks[j].description, "remaining_duration: "+duration, "remaining hours: "+remaining_hours, "scheduled_duration: "+tasks[j].scheduled_duration)
           }
           task_index = j;
           break;
@@ -241,22 +260,17 @@ function store_tasks(){
 
 function store_availability(){
   var availability = get_availability();
-  var days_in_week = 7;
-  var temp_arr = [];
-  var str = "";
-  for(i=0; i<days_in_week; i++){
-    temp_arr.push(availability[i]);
-  }
-  str = temp_arr.join(",");
-  localStorage.availability = str;
+  localStorage.availability = JSON.stringify(availability);
 }
+
+
 
 function display_tasks(){
   $(".scheduled_dates").remove();
   var tasks = schedule_tasks();
   var jList = $(".listItem");
   var list_count = jList.length;
-  console.log(tasks);
+  // console.log(tasks);
   for(i=0; i<list_count; i++){
     dates = tasks[i].scheduled_dates;
     // console.log("dates: ", dates);
