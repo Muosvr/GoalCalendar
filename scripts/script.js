@@ -1,11 +1,54 @@
 // $(".sortable").sortable({
 //   appendTo:document.body
 // });
+list_template="<li draggable='true' class='sortable-bulk listItem'>"
+              + "<input placeholder='task' class='task task_attribute' type='text'></input>"
+              +"<input placeholder='deadline' class='datepicker task_attribute' type='date'></input>"
+              + "<input placeholder='hours' class='duration task_attribute' type='number' step='0.25'></input>"
+              + "<button class='deleteBtn task_attribute' action=delete()>Delete</button>"
+              + "</li>";
 
+function display_localStorage_availability(){
+  if(localStorage.availability != undefined){
+    var hours = localStorage.availability.split(",");
+  }
+  weekdays = $(".schedule");
+  for (i=0; i<weekdays.length; i++){
+    $(weekdays[i]).val(parseFloat(hours[i]));
+  }
+}
 
+function display_localStorage_tasks(){
+  if (localStorage.tasks != undefined){
+    var list = localStorage.tasks.split("\n")
+  }
+
+  for(i=0; i<list.length; i++){
+    var task_attribute = list[i].split(",");
+    var attribute_count = task_attribute.length;
+    console.log("Task attribute: "+ task_attribute);
+    $("ul").append(list_template);
+    $("ul li:last .task").val(task_attribute[0]);
+    $("ul li:last .deadline").val(task_attribute[1]);
+    $("ul li:last .duration").val(parseFloat(task_attribute[2]));
+    $("ul li:last .deleteBtn").click(function(){
+      list = $(this)[0].parentNode;
+      console.log(list);
+      list.remove();
+    });
+  }
+  return list
+}
+
+function show_localStorage(){
+  display_localStorage_availability();
+  display_localStorage_tasks();
+}
 
 function run(){
   console.log("running");
+  show_localStorage();
+  display_tasks();
   // $('.sortable').css({border: "3px solid red"});
   // $('.sortable').sortable();
 
@@ -19,15 +62,9 @@ function run(){
   //   console.log(e.target);
   // })
 
-  var listItem = "<li draggable='true' class='sortable-bulk listItem'>"
-                + "<input placeholder='task' class='task' type='text'></input>"
-                +"<input placeholder='deadline' class='datepicker' type='date'></input>"
-                + "<input placeholder='hours' class='duration' type='number'></input>"
-                + "<button class='deleteBtn' action=delete()>Delete</button>"
-                + "</li>"
 
   $("#addButton").click(function(){
-    $("ul").append(listItem);
+    $("ul").append(list_template);
     $("ul li:last .deleteBtn").click(function(){
       list = $(this)[0].parentNode;
       console.log(list);
@@ -71,7 +108,22 @@ function run(){
         event.target.style['border-top'] = '';
         event.target.parentNode.insertBefore(dragging, event.target);
       }
+      display_tasks();
+      save();
   });
+
+  $("input").keyup(function(){
+    display_tasks();
+    save();
+  });
+  $("button").click(function(){
+    display_tasks();
+    save();
+  })
+  $("input").click(function(){
+    display_tasks();
+    save();
+  })
 
 }
 
@@ -91,7 +143,7 @@ function get_availability(){
     // var id = $("td")[i].getElementsByTagName("Input")[0].id;
     var value = $("td")[i].getElementsByTagName("Input")[0].value;
     if (value != ""){
-      availability[i] = parseInt(value);
+      availability[i] = parseFloat(value);
     }
 
   }
@@ -165,17 +217,52 @@ function schedule_tasks(){
   return tasks;
 }
 
+function save(){
+  store_tasks();
+  store_availability();
+  console.log("saved")
+}
+
+function store_tasks(){
+  tasks = get_tasks();
+  var length = tasks.length;
+  var str = "";
+  var task_attribute = ["description", "deadline", "duration"];
+  for(i=0; i<length; i++){
+    str += tasks[i]["description"] + ", ";
+    str += tasks[i]["deadline"] + ", ";
+    str += tasks[i]["duration"];
+    if(i < length-1){
+     str += "\n";
+    }
+  }
+  localStorage.tasks = str
+}
+
+function store_availability(){
+  var availability = get_availability();
+  var days_in_week = 7;
+  var temp_arr = [];
+  var str = "";
+  for(i=0; i<days_in_week; i++){
+    temp_arr.push(availability[i]);
+  }
+  str = temp_arr.join(",");
+  localStorage.availability = str;
+}
+
 function display_tasks(){
   $(".scheduled_dates").remove();
   var tasks = schedule_tasks();
-  var jList = $(".listItem")
+  var jList = $(".listItem");
   var list_count = jList.length;
-
+  console.log(tasks);
   for(i=0; i<list_count; i++){
-    dates = tasks[i].scheduled_dates
+    dates = tasks[i].scheduled_dates;
+    // console.log("dates: ", dates);
     for (j=0; j<dates.length; j++){
-      $(jList[i]).append("<div class='scheduled_dates' style='display:inline-block; margin-left:10px'>" + dates[j] + "</div>")
-    }
+      $(jList[i]).append("<div class='scheduled_dates' style='display:inline-block; margin-left:10px'>" + dates[j] + "</div>");
 
+    }
   }
 }

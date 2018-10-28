@@ -9,6 +9,7 @@
   </head>
 
   <body onload="run()">
+    <h2 id="header">Task Scheduler</h2>
     <div id="schedule_block">
       <div id="table_title">Availability during the week (in hours)</div>
       <table>
@@ -23,38 +24,36 @@
         </tr>
         <tr>
           <td>
-            <input class="schedule" id="Mon" type="number" placeholder="0"></input>
+            <input class="schedule" id="Mon" type="number" step="0.25" placeholder="0"></input>
           </td>
           <td>
-            <input class="schedule" id="Tue" type="number" placeholder="0"></input>
+            <input class="schedule" id="Tue" type="number" step="0.25" placeholder="0"></input>
           </td>
           <td>
-            <input class="schedule" id="Wed" type="number" placeholder="0"></input>
+            <input class="schedule" id="Wed" type="number" step="0.25" placeholder="0"></input>
           </td>
           <td>
-            <input class="schedule" id="Thur" type="number" placeholder="0"></input>
+            <input class="schedule" id="Thur" type="number" step="0.25" placeholder="0"></input>
           </td>
           <td>
-            <input class="schedule" id="Fri" type="number" placeholder="0"></input>
+            <input class="schedule" id="Fri" type="number" step="0.25" placeholder="0"></input>
           </td>
           <td>
-            <input class="schedule" id="Sat" type="number" placeholder="0"></input>
+            <input class="schedule" id="Sat" type="number" step="0.25" placeholder="0"></input>
           </td>
           <td>
-            <input class="schedule" id="Sun" type="number" placeholder="0"></input>
+            <input class="schedule" id="Sun" type="number" step="0.25" placeholder="0"></input>
           </td>
         </tr>
       </table>
     </div>
 
-
-    <ul>
-        <button id="addButton">Add</button>
-        <button id="calculate" onclick="display_tasks()">Calculate</button>
+    <ul style="margin-top:10px">
         <li draggable="true" class="sortable-bulk">
-          <div class='task_atribute' id="title_task">Tasks</div>
-          <div class='task_atribute' id="title_date" >  Date picker</div>
-          <div class='task_atribute'id="title_duration"> Minimum time needed</div>
+          <div class='task_atribute_title' id="title_task" style="margin-left:85px; margin-right:70px"><button id="addButton">Add tasks</button></div>
+          <div class='task_atribute_title' id="title_date" style="margin-right:50px">Deadline</div>
+          <div class='task_atribute_title'id="title_duration" style="margin-right:100px">Time needed</div>
+          <div class='task_atribute_title'><button id="calculate" onclick="display_tasks()" style="display:inline-block">Calculate dates</button></div>
         </li>
     </ul>
 
