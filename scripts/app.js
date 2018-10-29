@@ -17,6 +17,80 @@ function run(){
   auto_update_and_save();
 }
 
+function get_timestamps(){
+  var length = eventList.length;
+  var timestamps = {}
+  for (i=0; i<length; i++){
+    if(eventList[i].start.dateTime != undefined && eventList[i].end.dateTime != undefined){
+      var start = new Date(eventList[i].start.dateTime)
+      var end = new Date(eventList[i].end.dateTime)
+      var duration = (end - start)/(36e5)*1.0;
+      var overnight_tolerance = 3;
+      if (start.toLocaleDateString() == end.toLocaleDateString() || duration<overnight_tolerance){
+      //   var event_name = eventList[i].summary
+      //   // console.log(i, event_name, duration);
+        if(timestamps[start.toLocaleDateString()]==undefined){
+          timestamps[start.toLocaleDateString()] = [];
+        }
+        timestamps[start.toLocaleDateString()].push({"start":start});
+        timestamps[start.toLocaleDateString()].push({"end":end});
+        timestamps[start.toLocaleDateString()].sort(function(a, b){
+          return Object.values(a)[0] - Object.values(b)[0];
+        })
+      }
+    }
+  }
+  return timestamps;
+}
+
+function count_availablity(){
+  var timestamps = get_timestamps();
+  var keys = Object.keys(timestamps);
+  var availability = {};
+  var daily_total_hours = 13;
+
+  for (i=0; i<keys.length; i++){
+    var events = timestamps[keys[i]];
+    var start_count = 0;
+    var busy_hours = 0.0;
+    // var inside_event = false;
+    for (j=0; j<events.length; j++){
+      if(events[j].start != undefined && start_count == 0){
+        var start = events[j].start;
+        start_count = 1;
+      }else if(events[j].start != undefined && start_count > 0){
+        start_count += 1;
+      }else if(events[j].end != undefined && start_count > 1){
+        start_count -= 1;
+      }else if(events[j].end != undefined && start_count == 1){
+        var end = events[j].end;
+        busy_hours += (end - start)/(36e5)*1.0;
+        start_count = 0;
+      }
+    }
+    var free_time = daily_total_hours - busy_hours;
+    if (free_time<0){
+      free_time = 0;
+    }
+    availability[keys[i]] = free_time;
+  }
+  return availability;
+}
+
+function update_availability(){
+  var availability = count_availablity();
+  var inputs = $(".schedule input");
+  var days = $(".schedule th");
+  for (i=0; i<inputs.length; i++){
+    var key = days[i].id;
+    if(availability[key] != undefined){
+      $(inputs[i]).val(availability[key]);
+    }else{
+      console.log("Unable to find availability for:", key);
+    }
+  }
+}
+
 function get_days(){
   var day_count = 7;
   var datetime = []
@@ -36,13 +110,16 @@ function display_days(){
     var day_of_week = days[datetimes[i].getDay()];
     var day_of_month = datetimes[i].getDate();
     $("#schedule_head").append(
-      "<th>"
+      "<th id="
+      +datetimes[i].toLocaleDateString()
+      +">"
       +day_of_week
       +" "
       +day_of_month
       +"</th>")
   }
 }
+
 
 
 function display_localStorage_availability(){
@@ -211,19 +288,20 @@ function schedule_tasks(){
 
   var task_index = 0;
   for(i=0; i< days; i++){
-    var hours = parseFloat(availability[week[future_datetimes[i].getDay()]+" "+future_datetimes[i].getDate()]);
+    var day_date = week[future_datetimes[i].getDay()]+" "+future_datetimes[i].getDate()
+    var hours = parseFloat(availability[day_date]);
     var remaining_hours = hours;
     var min_duration = 1;
       for(j=task_index; j<task_count; j++){
         var duration = parseFloat(tasks[j].duration - tasks[j].scheduled_duration);
         if (remaining_hours >= duration && duration > 0){
           remaining_hours -= duration;
-          tasks[j].scheduled_dates.push(week[i]);
+          tasks[j].scheduled_dates.push(day_date);
           tasks[j].scheduled_duration += duration;
           // console.log(week[i], "Task: "+tasks[j].description, "remaining_duration: "+duration, "remaining hours: "+remaining_hours, "scheduled_duration: "+tasks[j].scheduled_duration)
         }else{
           if (remaining_hours >= 1 && duration > 0){
-            tasks[j].scheduled_dates.push(week[i]);
+            tasks[j].scheduled_dates.push(day_date);
             tasks[j].scheduled_duration += remaining_hours;
             remaining_hours = 0;
             // console.log(week[i], "Task: "+tasks[j].description, "remaining_duration: "+duration, "remaining hours: "+remaining_hours, "scheduled_duration: "+tasks[j].scheduled_duration)

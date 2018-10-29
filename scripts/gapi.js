@@ -15,7 +15,7 @@ function initClient() {
   // Initialize the client with API key and People API, and initialize OAuth with an
   // OAuth 2.0 client ID and scopes (space delimited string) to request access.
   gapi.client.init({
-      apiKey: 'AIzaSyAWIzQWhn633ECzeSRpFa06dgOblMw2qoQ',
+      apiKey: get_key(),
       discoveryDocs: ["https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest"],
       clientId: '568249120290-13q4r09h6jldf1lj5d19jo3c3tbbsuhd.apps.googleusercontent.com',
       scope: "https://www.googleapis.com/auth/calendar.readonly"
@@ -36,11 +36,13 @@ function updateSigninStatus(isSignedIn) {
   // If the signin status is changed to signedIn, we make an API call.
   if (isSignedIn) {
     authorizeButton.style.display = 'none';
-    signoutButton.style.display = 'block';
+    signoutButton.style.display = 'inline-block';
+    $("#update_availability").css("display", "inline-block");
     listUpcomingEvents();
   }else {
-    authorizeButton.style.display = 'block';
+    authorizeButton.style.display = 'inline-block';
     signoutButton.style.display = 'none';
+    $("#update_availability").css("display", "none");
   }
 }
 
