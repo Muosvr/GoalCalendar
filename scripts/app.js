@@ -45,14 +45,18 @@ function get_timestamps(){
 
 function count_availablity(){
   var timestamps = get_timestamps();
-  var keys = Object.keys(timestamps);
+  var dates = Object.keys(timestamps);
   var availability = {};
   var daily_total_hours = 13;
+  var current_time = new Date()
+  var start_time = new Date();
+  start_time.setHours(9,0,0) //hour, min, sec
 
-  for (i=0; i<keys.length; i++){
-    var events = timestamps[keys[i]];
+  for (i=0; i<dates.length; i++){
+    var events = timestamps[dates[i]];
     var start_count = 0;
     var busy_hours = 0.0;
+    var free_time = 0;
     // var inside_event = false;
     for (j=0; j<events.length; j++){
       if(events[j].start != undefined && start_count == 0){
@@ -67,12 +71,21 @@ function count_availablity(){
         busy_hours += (end - start)/(36e5)*1.0;
         start_count = 0;
       }
+      // console.log(dates[i], busy_hours);
     }
-    var free_time = daily_total_hours - busy_hours;
+    if (dates[i] == current_time.toLocaleDateString()){
+      var time_elapsed = (current_time-start_time)/36e5*1.0;
+      free_time = daily_total_hours - time_elapsed - busy_hours;
+      // console.log("Time elapsed:", time_elapsed);
+      // console.log("Free time:", free_time);
+    }else{
+      free_time = daily_total_hours - busy_hours;
+    }
+
     if (free_time<0){
       free_time = 0;
     }
-    availability[keys[i]] = free_time;
+    availability[dates[i]] = free_time;
   }
   return availability;
 }
@@ -340,8 +353,6 @@ function store_availability(){
   var availability = get_availability();
   localStorage.availability = JSON.stringify(availability);
 }
-
-
 
 function display_tasks(){
   $(".scheduled_dates").remove();
