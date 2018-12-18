@@ -1,3 +1,3 @@
 function get_key(){
-  return ""
+  return "Google API Key"
 }
