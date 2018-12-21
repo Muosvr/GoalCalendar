@@ -314,23 +314,25 @@ function schedule_tasks() {
     var remaining_hours = hours;
     var min_duration = 1;
     for (j = task_index; j < task_count; j++) {
-      var duration = parseFloat(
-        tasks[j].duration - tasks[j].scheduled_duration
-      );
-      if (remaining_hours >= duration && duration > 0) {
-        remaining_hours -= duration;
-        tasks[j].scheduled_dates.push(day_date);
-        tasks[j].scheduled_duration += duration;
-        // console.log(week[i], "Task: "+tasks[j].description, "remaining_duration: "+duration, "remaining hours: "+remaining_hours, "scheduled_duration: "+tasks[j].scheduled_duration)
-      } else {
-        if (remaining_hours >= 1 && duration > 0) {
+      if (tasks[j].duration) {
+        var duration = parseFloat(
+          tasks[j].duration - tasks[j].scheduled_duration
+        );
+        if (remaining_hours >= duration && duration > 0) {
+          remaining_hours -= duration;
           tasks[j].scheduled_dates.push(day_date);
-          tasks[j].scheduled_duration += remaining_hours;
-          remaining_hours = 0;
+          tasks[j].scheduled_duration += duration;
           // console.log(week[i], "Task: "+tasks[j].description, "remaining_duration: "+duration, "remaining hours: "+remaining_hours, "scheduled_duration: "+tasks[j].scheduled_duration)
+        } else {
+          if (remaining_hours >= 1 && duration > 0) {
+            tasks[j].scheduled_dates.push(day_date);
+            tasks[j].scheduled_duration += remaining_hours;
+            remaining_hours = 0;
+            // console.log(week[i], "Task: "+tasks[j].description, "remaining_duration: "+duration, "remaining hours: "+remaining_hours, "scheduled_duration: "+tasks[j].scheduled_duration)
+          }
+          task_index = j;
+          break;
         }
-        task_index = j;
-        break;
       }
     }
   }
