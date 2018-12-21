@@ -314,7 +314,7 @@ function schedule_tasks() {
     var remaining_hours = hours;
     var min_duration = 1;
     for (j = task_index; j < task_count; j++) {
-      if (tasks[j].duration) {
+      if (tasks[j].duration && tasks[j].duration != 0) {
         var duration = parseFloat(
           tasks[j].duration - tasks[j].scheduled_duration
         );
